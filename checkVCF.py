@@ -1,6 +1,17 @@
 #!/usr/bin/env python
 import sys, os, re
 import logging
+
+# all is a keyword since Python 2.7
+try:
+    all
+except:
+    def all(iterable):
+	for element in iterable:
+	    if not element:
+		return False
+	    return True
+
 def myopen(fn):
     import gzip
     f = gzip.open(fn)
@@ -39,7 +50,12 @@ class GenomeSequence:
 	self.fn = ''
 	self.data = {}
 	self.fileHandle = None
-	
+	# for earlier Python version, we need to define os.SEEK_SET manually
+	try:
+	    os.SEEK_SET
+	except AttributeError:
+	    os.SEEK_SET, os.SEEK_CUR, os.SEEK_END = range(3)
+	    
     def open(self, fn):
 	# read index
 	if not os.path.exists(fn + '.fai'):
@@ -98,7 +114,7 @@ class Logger:
 
 def banner(logger = sys.stderr):
     print >> logger, "checkVCF.py -- check validity of VCF file for meta-analysis"
-    print >> logger, "version 1.0 (20130115)"
+    print >> logger, "version 1.1 (20130117)"
     print >> logger, "contact zhanxw@umich.edu or dajiang@umich.edu for problems."
     
 if __name__ == '__main__':
@@ -108,7 +124,11 @@ if __name__ == '__main__':
 	optlist = dict(optlist)
 	refFile = optlist['-r']
 	outPrefix = optlist['-o']
-        # = args
+	if len(args) == 1:
+	    vcfFile = args[0]
+	else:
+	    print >> sys.stderr, "Please provide one VCF at a time"
+	    sys.exit(1)
     except:
         usage()
 	print
@@ -146,9 +166,12 @@ if __name__ == '__main__':
     ACGTM = set(['A', 'C', 'G', 'T', '.'])
     lineNo = -1
 
+    
+    print >> logger, "Python version is [ %s ] " % '.'.join(map(str, sys.version_info)).strip()
+    print >> logger, "Begin checking vcfFile [ %s ]" % vcfFile
     try:
 	prevChrom, prevPos = None, None
-        for lineNo, ln in enumerate(myopen(args[0])):
+        for lineNo, ln in enumerate(myopen(vcfFile)):
 	    if lineNo % 10000 == 0 and lineNo != 0:
 		print >> logger, "[ %d ] lines processed \r" % lineNo,
 	    if not ln or ln.startswith('##'):continue
@@ -253,13 +276,15 @@ if __name__ == '__main__':
     except SystemExit:
 	sys.exit(1)
     except KeyboardInterrupt:
-	print >> logger, "VCF checking stopped at line [ %d ]" % (lineNo + 1)
+	print >> logger, "VCF checking has been stopped at line [ %d ]" % (lineNo + 1)
 	print >> logger, " [ %s ... ] " % ln[:50]
 	sys.exit(1)
-    except:
+    except Exception, e:
 	print >> logger, "VCF checking failed at line [ %d ]" % (lineNo + 1)
 	print >> logger, " [ %s ... ] " % ln[:50]
-	print >> logger, "Please report above lines to zhanxw@gmail.com"
+	print >> logger, "Python exceptions occurred [ %s ]!" % e
+	print >> logger, "Please report the above to zhanxw@gmail.com"
+	raise
 	sys.exit(1)
 
     print >> logger, "---------------     REPORT     ---------------"
@@ -288,5 +313,5 @@ if __name__ == '__main__':
 	    print >> logger, "* Open %s.check.geno, using line number there to examine the original VCF files; make sure genotypes are correct."
     else:
 	print >> logger, "* No error found by checkVCF.py, thank you for cleanning VCF."
-    print >> logger, "* Upload these files to the ftp: {outPrefix}.check.log {outPrefix}.check.dup {outPrefix}.check.noSnp {outPrefix}.check.ref {outPrefix}.check.geno {outPrefix}.check.af {outPrefix}.check.mono".format(outPrefix = outPrefix)
+    print >> logger, "* Upload these files to the ftp: %s.check.log %s.check.dup %s.check.noSnp %s.check.ref %s.check.geno %s.check.af %s.check.mono" % ( (outPrefix,)*7)
     
