@@ -166,7 +166,9 @@ if __name__ == '__main__':
     ACGTM = set(['A', 'C', 'G', 'T', '.'])
     lineNo = -1
 
-    
+    vcfHeaderLine = 0
+    vcfSiteLine = 0
+    vcfSample = 0
     print >> logger, "Python version is [ %s ] " % '.'.join(map(str, sys.version_info)).strip()
     print >> logger, "Begin checking vcfFile [ %s ]" % vcfFile
     try:
@@ -174,8 +176,11 @@ if __name__ == '__main__':
         for lineNo, ln in enumerate(myopen(vcfFile)):
 	    if lineNo % 10000 == 0 and lineNo != 0:
 		print >> logger, "[ %d ] lines processed \r" % lineNo,
-	    if not ln or ln.startswith('##'):continue
+	    if not ln or ln.startswith('##'):
+		vcfHeaderLine += 1
+		continue
 	    if ln.startswith('#CHROM'):
+		vcfHeaderLine += 1
 		fd = ln.strip().split()
 		nField = len(fd)
 		# check duplicated sample ids
@@ -183,6 +188,7 @@ if __name__ == '__main__':
 		    actionItem(logger)
 		    print >> logger, "Your VCF file have duplicated sample IDs, please fix them and re-run checkVCF.py"
 		    sys.exit(1)
+		vcfSample = len(fd) - 9
 		continue
 
 	    if ln[:3].upper() == "CHR":
@@ -191,7 +197,7 @@ if __name__ == '__main__':
 		print >> logger, '(grep ^"#" $your_old_vcf; grep -v ^"#" $your_old_vcf | sed \'s:^chr::ig\' | sort -k1,1n -k2,2n) | bgzip -c > $your_vcf_file '
 		sys.exit(1)
 
-	    
+	    vcfSiteLine += 1
 	    fd = ln.strip().split()
 	    if len(fd) != nField:
 		print >> logger, "Line [ %d ] does not have correct column number, exiting!" % (lineNo + 1)
@@ -245,7 +251,7 @@ if __name__ == '__main__':
 
 	    # check genotype
 	    try:
-		genos = [i.split()[gtIndex] for i in fd[9:]]
+		genos = [i.split(':')[gtIndex] for i in fd[9:]]
 	    except:
 		fGeno.write('IndividualMissingGTField\tLine:%d\n' % (lineNo + 1) )
 		nGeno += 1
@@ -261,7 +267,7 @@ if __name__ == '__main__':
 	    nSample = sum( (1 for g in geno if g >= 0 ) )
 	    if ac == 0 or ac == 2*nSample:
 		# monomorphic site
-		fMono.write('%s:%s\n' % (chrom, pos))
+		fMono.write('%s:%s\t%d\t%d\n' % (chrom, pos, ac, nSample))
 		nMono += 1
 
 	    if nSample > 0:
@@ -269,8 +275,6 @@ if __name__ == '__main__':
 	    else:
 		af = 0.0
 	    if af > 0.5:
-		# out = fd[:9]
-		# out.append(str(af))
 		fAF.write('%s:%s\t%s\t%s\t%f\n' % (chrom, pos, ref, alt, af))
 		nAF += 1
     except SystemExit:
@@ -289,6 +293,7 @@ if __name__ == '__main__':
 
     print >> logger, "---------------     REPORT     ---------------"
     print >> logger, "Total [ %d ] lines processed" % (lineNo + 1)
+    print >> logger, "Examine [ %d ] VCF header lines, [ %d ] variant sites, [ %d ] samples" % (vcfHeaderLine, vcfSiteLine, vcfSample)
     print >> logger, "[ %d ] duplicated sites" % (nDupSite)
     print >> logger, "[ %d ] NonSNP site are outputted to [ %s ]" % (nNonSnp, outPrefix + '.check.nonSnp')
     print >> logger, "[ %d ] Inconsistent reference sites are outputted to [ %s ]" % (nRef, outPrefix + '.check.ref')
@@ -310,7 +315,7 @@ if __name__ == '__main__':
 	if nRef > 0:
 	    print >> logger, "* Read %s.check.ref, for autosomal sites, make sure the you are using the forward strand" % outPrefix
 	if nGeno > 0:
-	    print >> logger, "* Open %s.check.geno, using line number there to examine the original VCF files; make sure genotypes are correct."
+	    print >> logger, "* Open %s.check.geno, using line number there to examine the original VCF files; make sure genotypes are correct." % outPrefix
     else:
 	print >> logger, "* No error found by checkVCF.py, thank you for cleanning VCF."
     print >> logger, "* Upload these files to the ftp: %s.check.log %s.check.dup %s.check.noSnp %s.check.ref %s.check.geno %s.check.af %s.check.mono" % ( (outPrefix,)*7)
