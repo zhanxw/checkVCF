@@ -114,7 +114,7 @@ class Logger:
 
 def banner(logger = sys.stderr):
     print >> logger, "checkVCF.py -- check validity of VCF file for meta-analysis"
-    print >> logger, "version 1.1 (20130117)"
+    print >> logger, "version 1.2 (20130129)"
     print >> logger, "contact zhanxw@umich.edu or dajiang@umich.edu for problems."
     
 if __name__ == '__main__':
