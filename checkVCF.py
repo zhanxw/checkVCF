@@ -2,6 +2,8 @@
 import sys, os, re
 import logging
 
+VERSION = "version 1.3 (20130223)"
+
 # all is a keyword since Python 2.7
 try:
     all
@@ -12,6 +14,7 @@ except:
 		return False
 	    return True
 
+# convenient functions
 def myopen(fn):
     import gzip
     f = gzip.open(fn)
@@ -114,7 +117,7 @@ class Logger:
 
 def banner(logger = sys.stderr):
     print >> logger, "checkVCF.py -- check validity of VCF file for meta-analysis"
-    print >> logger, "version 1.2 (20130129)"
+    print >> logger, VERSION
     print >> logger, "contact zhanxw@umich.edu or dajiang@umich.edu for problems."
     
 if __name__ == '__main__':

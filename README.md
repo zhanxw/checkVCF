@@ -8,7 +8,7 @@ After you passed the checking, you can go on to run [rvtests](https://github.com
 Download
 --------
 
-Download from [this]() and unzip downloaded file.
+Download from [this](http://www.sph.umich.edu/csg/zhanxw/software/checkVCF/checkVCF-20130223.tar.gz) and unzip downloaded file.
 This includes checkVCF.py script, reference genome in FASTA format and its index file.
 
 Example
@@ -23,20 +23,22 @@ Outputs
 Upon successfully running checkVCF.py on the example file, you will obtain following information:
 
     checkVCF.py -- check validity of VCF file for meta-analysis
-    version 1.0 (20130115)
+    version 1.3 (20130223)
     contact zhanxw@umich.edu or dajiang@umich.edu for problems.
+    Python version is [ 2.7.3.final.0 ] 
+    Begin checking vcfFile [ example.vcf.gz ]
     ---------------     REPORT     ---------------
-    Total [ 1000 ] lines processed
+    Total [ 18 ] lines processed
+    Examine [ 7 ] VCF header lines, [ 11 ] variant sites, [ 6 ] samples
     [ 0 ] duplicated sites
-    [ 0 ] NonSNP site are outputted to [ test.check.nonSnp ]
-    [ 0 ] Inconsistent reference sites are outputted to [ test.check.ref ]
-    [ 0 ] Variant sites with invalid genotypes are outputted to [ test.check.geno ]
-    [ 546 ] Alternative allele frequency > 0.5 sites are outputted to [ test.check.af ]
-    [ 582 ] Monomorphic sites are outputted to [ test.check.mono ]
+    [ 0 ] NonSNP site are outputted to [ tmp.check.nonSnp ]
+    [ 10 ] Inconsistent reference sites are outputted to [ tmp.check.ref ]
+    [ 0 ] Variant sites with invalid genotypes are outputted to [ tmp.check.geno ]
+    [ 1 ] Alternative allele frequency > 0.5 sites are outputted to [ tmp.check.af ]
+    [ 1 ] Monomorphic sites are outputted to [ tmp.check.mono ]
     ---------------     ACTION ITEM     ---------------
-    * No error found by checkVCF.py, thank you for cleanning VCF.
-    * Upload these files to the ftp: test.check.log test.check.dup test.check.noSnp test.check.ref test.check.geno test.check.af test.check.mono
-
+    * Read tmp.check.ref, for autosomal sites, make sure the you are using the forward strand
+    * Upload these files to the ftp: tmp.check.log tmp.check.dup tmp.check.noSnp tmp.check.ref tmp.check.geno tmp.check.af tmp.check.mono
 
 ### .check.nonSnp file
 
