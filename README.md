@@ -9,7 +9,7 @@ Download
 --------
 
 Download from [this](http://www.sph.umich.edu/csg/zhanxw/software/checkVCF/checkVCF-20131123.tar.gz) and unzip the downloaded file.
-This includes checkVCF.py script, reference genome in FASTA format and its index file.
+This includes [checkVCF.py](https://github.com/zhanxw/checkVCF/blob/master/checkVCF.py) script, reference genome in FASTA format and its index file.
 
 Example
 -------
