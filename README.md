@@ -1,14 +1,14 @@
 checkVCF.py
 ===========
 
-checkVCF.py is a small tool written in [Python](www.python.org/) to check input [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) files before association tests. 
+checkVCF.py is a small tool written in [Python](http://www.python.org/) to check input [VCF](http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41) files before association tests. 
 It can report monomorphic sites, sites with reference alleles inconsistent with the reference genome, sites with invalid genotypes, non-SNP site (e.g. indels), and all sites with allele frequencies greater than ''0.5''.
 After you passed the checking, you can go on to run [rvtests](https://github.com/zhanxw/rvtests) - rare-variant test software.
 
 Download
 --------
 
-Download from [this](http://www.sph.umich.edu/csg/zhanxw/software/checkVCF/checkVCF-20130223.tar.gz) and unzip the downloaded file.
+Download from [this](http://www.sph.umich.edu/csg/zhanxw/software/checkVCF/checkVCF-20131123.tar.gz) and unzip the downloaded file.
 This includes checkVCF.py script, reference genome in FASTA format and its index file.
 
 Example
