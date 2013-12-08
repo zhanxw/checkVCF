@@ -76,3 +76,7 @@ Contact
 -------
 
 Questions or comments can be sent to [Xiaowei Zhan](mailto:zhanxw@umich.edu)  or [Dajiang Liu](mailto:dajiang@umich.edu).
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/zhanxw/checkvcf/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
