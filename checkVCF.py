@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-import sys, os, re
+import sys, os
 import logging
 
-VERSION = "version 1.3 (20130223)"
+VERSION = "version 1.4 (20140115)"
 
 # all is a keyword since Python 2.7
 try:
@@ -69,13 +69,19 @@ class GenomeSequence:
             self.fileHandle = open(self.fn)
             for ln in myopen(fn + '.fai'):
                 fd = ln.strip().split()
-                self.data[fd[0]] = map(int, fd[1:])
+                if fd[0][:3].upper() == "CHR":
+                    fd[0] = fd[0][3:]
+                key = fd[0]
+                val = map(int, fd[1:])
+                self.data[key] = val
+                self.data['CHR' + key] = val
             return True
         except:
             return False
     # return base at 0-based position
     # return None if something wrong
     def getBase(self, chrom, pos):
+        chrom = chrom.upper()
         if chrom not in self.data:
             return None
         size, loc, basesPerLine, bytePerLine = self.data[chrom]
@@ -172,6 +178,7 @@ if __name__ == '__main__':
     vcfHeaderLine = 0
     vcfSiteLine = 0
     vcfSample = 0
+    chrWarningGiven = False
     print >> logger, "Python version is [ %s ] " % '.'.join(map(str, sys.version_info)).strip()
     print >> logger, "Begin checking vcfFile [ %s ]" % vcfFile
     try:
@@ -192,19 +199,23 @@ if __name__ == '__main__':
                     print >> logger, "Your VCF file have duplicated sample IDs, please fix them and re-run checkVCF.py"
                     sys.exit(1)
                 vcfSample = len(fd) - 9
+                # XX
+                ##print '%d sample loaded' % (vcfSample)
+                ##print 'nField = %d' % nField
                 continue
 
-            if ln[:3].upper() == "CHR":
-                actionItem(logger)
-                print >> logger, "Please use the following command to clean your VCF file and then re-run checkVCF.py"
-                print >> logger, '(grep ^"#" $your_old_vcf; grep -v ^"#" $your_old_vcf | sed \'s:^chr::ig\' | sort -k1,1n -k2,2n) | bgzip -c > $your_vcf_file '
-                sys.exit(1)
+            if ln[:3].upper() == "CHR" and not chrWarningGiven:
+                chrWarningGiven = True
+                # sys.exit(1)
 
             vcfSiteLine += 1
             fd = ln.strip().split()
             if len(fd) != nField:
                 print >> logger, "Line [ %d ] does not have correct column number, exiting!" % (lineNo + 1)
+                print >> logger, "Current line has %d columns." % (len(fd))
+                print >> logger, "First 50 characters in the current line content [ %s ]. " % (ln.strip()[:50])
                 sys.exit(1)
+
             chrom, pos, rsId, ref, alt, qual, filt, info, format = fd[:9]
             if len(ref) != 1 or len(alt) != 1:
                 fNonSnp.write("%s\n" % ('\t'.join(fd[:5])))
@@ -286,6 +297,10 @@ if __name__ == '__main__':
         print >> logger, "VCF checking has been stopped at line [ %d ]" % (lineNo + 1)
         print >> logger, " [ %s ... ] " % ln[:50]
         sys.exit(1)
+    except IOError:
+        print >> logger, "IOError happened..."
+        raise
+        sys.exit(1)
     except Exception, e:
         print >> logger, "VCF checking failed at line [ %d ]" % (lineNo + 1)
         print >> logger, " [ %s ... ] " % ln[:50]
@@ -294,6 +309,12 @@ if __name__ == '__main__':
         raise
         sys.exit(1)
 
+    if chrWarningGiven:
+        print >> logger, "---------------     WARNING     ---------------"
+        print >> logger, "Detected that chromosome names have 'chr' prefix..."
+        print >> logger, "Please consider using the following command to clean your VCF file and then re-run checkVCF.py"
+        print >> logger, '(grep ^"#" $your_old_vcf; grep -v ^"#" $your_old_vcf | sed \'s:^chr::ig\' | sort -k1,1n -k2,2n) | bgzip -c > $your_vcf_file '
+        
     print >> logger, "---------------     REPORT     ---------------"
     print >> logger, "Total [ %d ] lines processed" % (lineNo + 1)
     print >> logger, "Examine [ %d ] VCF header lines, [ %d ] variant sites, [ %d ] samples" % (vcfHeaderLine, vcfSiteLine, vcfSample)
@@ -320,6 +341,6 @@ if __name__ == '__main__':
         if nGeno > 0:
             print >> logger, "* Open %s.check.geno, using line number there to examine the original VCF files; make sure genotypes are correct." % outPrefix
     else:
-        print >> logger, "* No error found by checkVCF.py, thank you for cleanning VCF."
-    print >> logger, "* Upload these files to the ftp: %s.check.log %s.check.dup %s.check.noSnp %s.check.ref %s.check.geno %s.check.af %s.check.mono" % ( (outPrefix,)*7)
+        print >> logger, "* No error found by checkVCF.py, thank you for cleanning VCF file."
+    print >> logger, "* Upload these files to the ftp server (so we can double check): %s.check.log %s.check.dup %s.check.noSnp %s.check.ref %s.check.geno %s.check.af %s.check.mono" % ( (outPrefix,)*7)
     
