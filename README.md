@@ -8,7 +8,7 @@ After you passed the checking, you can go on to run [rvtests](https://github.com
 Download
 --------
 
-Download from [this bundle (839 Mb)](http://www.sph.umich.edu/csg/zhanxw/software/checkVCF/checkVCF-20140116.tar.gz) and unzip the downloaded file.
+Download from [this bundle (839 Mb)](http://qbrc.swmed.edu/zhanxw/software/checkVCF/checkVCF-20140116.tar.gz) and unzip the downloaded file.
 This includes [checkVCF.py](https://github.com/zhanxw/checkVCF/blob/master/checkVCF.py) script, reference genome (hs37d5.fa) in FASTA format and its index file (hs37d5.fa.fai).
 
 Example
