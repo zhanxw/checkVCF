@@ -301,7 +301,7 @@ if __name__ == '__main__':
         print >> logger, "IOError happened..."
         raise
         sys.exit(1)
-    except Exception, e:
+    except Exception as e:
         print >> logger, "VCF checking failed at line [ %d ]" % (lineNo + 1)
         print >> logger, " [ %s ... ] " % ln[:50]
         print >> logger, "Python exceptions occurred [ %s ]!" % e
